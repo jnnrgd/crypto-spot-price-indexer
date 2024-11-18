@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../../../infrastructure/configs/logger';
 
-export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
 
   logger.error(`Error occurred: ${err.message}`);
