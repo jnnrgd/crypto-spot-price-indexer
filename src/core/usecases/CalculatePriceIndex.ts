@@ -1,17 +1,17 @@
-import { ConnectorRegistry } from '../../adapters/connectors/ConnectorRegistry';
+import { Pair } from '../domain/Pair';
 import { PriceIndex } from '../domain/PriceIndex';
-import { ExchangeConnector } from '../ports/ExchangeConnector';
+import { ConnectorRegistryPort } from '../ports/ConnectorRegistryPort';
 import { PricesNotAvailableError } from './errors';
 
 export class CalculatePriceIndex {
-  private connectors: ExchangeConnector[];
-  constructor() {
-    this.connectors = ConnectorRegistry.getAllConnectors();
+  private connectorRegistry: ConnectorRegistryPort;
+  constructor(connectorRegistry: ConnectorRegistryPort) {
+    this.connectorRegistry = connectorRegistry;
   }
 
-  async mean(pair: string): Promise<PriceIndex> {
+  async mean(pair: Pair): Promise<PriceIndex> {
     const prices = await Promise.all(
-      this.connectors.map(async connector => {
+      this.connectorRegistry.getConnectors().map(async connector => {
         const orderBook = await connector.fetchOrderBook(pair);
         return (orderBook.bid + orderBook.ask) / 2;
       })
@@ -30,9 +30,9 @@ export class CalculatePriceIndex {
     };
   }
 
-  async median(pair: string): Promise<PriceIndex> {
+  async median(pair: Pair): Promise<PriceIndex> {
     const prices = await Promise.all(
-      this.connectors.map(async connector => {
+      this.connectorRegistry.getConnectors().map(async connector => {
         const orderBook = await connector.fetchOrderBook(pair);
         return (orderBook.bid + orderBook.ask) / 2;
       })

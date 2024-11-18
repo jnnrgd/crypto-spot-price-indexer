@@ -8,41 +8,40 @@ describe('ConnectorRegistry', () => {
     fetchOrderBook: jest.Mock = jest.fn();
   }
 
-  beforeEach(() => {
-    // Reset the registry before each test
-    (ConnectorRegistry as any).connectors.clear();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('register', () => {
     it('should register a connector', () => {
+      const registry = new ConnectorRegistry();
       const connector = new MockConnector();
-      ConnectorRegistry.register(connector);
+      registry.register(connector);
 
-      expect(ConnectorRegistry.getConnector('MockExchange')).toBe(connector);
+      expect(registry.getConnector('MockExchange')).toBe(connector);
     });
   });
 
   describe('getConnector', () => {
     it('should return a registered connector', () => {
       const connector = new MockConnector();
-      ConnectorRegistry.register(connector);
+      const registry = new ConnectorRegistry();
+      registry.register(connector);
 
-      const retrievedConnector = ConnectorRegistry.getConnector('MockExchange');
+      const retrievedConnector = registry.getConnector('MockExchange');
       expect(retrievedConnector).toBe(connector);
     });
 
     it('should return undefined for unregistered connector', () => {
-      const retrievedConnector = ConnectorRegistry.getConnector('NonExistentExchange');
+      const registry = new ConnectorRegistry();
+      const retrievedConnector = registry.getConnector('NonExistentExchange');
       expect(retrievedConnector).toBeUndefined();
     });
   });
 
-  describe('getAllConnectors', () => {
+  describe('getConnectors', () => {
     it('should return all registered connectors', () => {
+      const registry = new ConnectorRegistry();
       const connector1 = new MockConnector();
       class MockConnector2 implements ExchangeConnector {
         getName(): string { return "MockConnector2"; }
@@ -50,10 +49,10 @@ describe('ConnectorRegistry', () => {
       }
       const connector2 = new MockConnector2();
 
-      ConnectorRegistry.register(connector1);
-      ConnectorRegistry.register(connector2);
+      registry.register(connector1);
+      registry.register(connector2);
 
-      const allConnectors = ConnectorRegistry.getAllConnectors();
+      const allConnectors = registry.getConnectors();
       expect(allConnectors).toHaveLength(2);
       expect(allConnectors).toContain(connector1);
       expect(allConnectors).toContain(connector2);

@@ -1,5 +1,7 @@
+import { Pair } from './Pair';
+
 export interface PriceIndex {
-  pair: string;
+  pair: Pair;
   price: number;
   timestamp: number;
 }

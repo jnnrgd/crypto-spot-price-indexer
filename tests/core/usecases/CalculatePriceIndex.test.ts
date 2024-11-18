@@ -2,15 +2,20 @@ import { CalculatePriceIndex } from '../../../src/core/usecases/CalculatePriceIn
 import { ConnectorRegistry } from '../../../src/adapters/connectors/ConnectorRegistry';
 import { ExchangeConnector } from '../../../src/core/ports/ExchangeConnector';
 import { PricesNotAvailableError } from '../../../src/core/usecases/errors';
+import { Pair } from '../../../src/core/domain/Pair';
 
 describe('CalculatePriceIndex', () => {
   let priceIndexCalculator: CalculatePriceIndex;
   let mockConnectors: jest.Mocked<ExchangeConnector[]>;
-
+  let registry = new ConnectorRegistry();
+  const pair: Pair = {
+    asset: 'BTC',
+    quote: 'USDT',
+  };
   beforeEach(() => {
     mockConnectors = [
       {
-        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 })
+        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 },)
       },
       {
         fetchOrderBook: jest.fn().mockResolvedValue({ bid: 89900, ask: 90000 })
@@ -20,14 +25,13 @@ describe('CalculatePriceIndex', () => {
       }
     ] as any;
 
-    jest.spyOn(ConnectorRegistry, 'getAllConnectors').mockReturnValue(mockConnectors);
+    jest.spyOn(registry, 'getConnectors').mockReturnValue(mockConnectors);
 
-    priceIndexCalculator = new CalculatePriceIndex();
+    priceIndexCalculator = new CalculatePriceIndex(registry);
   });
 
   describe('mean', () => {
     it('should calculate the mean price correctly', async () => {
-      const pair = 'BTC/USDT';
       const result = await priceIndexCalculator.mean(pair);
 
       expect(result.pair).toBe(pair);
@@ -36,18 +40,14 @@ describe('CalculatePriceIndex', () => {
     });
 
     it('should throw PricesNotAvailableError when no prices', async () => {
-      mockConnectors.forEach(connector =>
-        (connector.fetchOrderBook as jest.Mock).mockRejectedValue(new PricesNotAvailableError())
-      );
-
-      await expect(priceIndexCalculator.mean('BTC/USDT'))
+      const calculatePriceIndex = new CalculatePriceIndex(new ConnectorRegistry());
+      await expect(calculatePriceIndex.mean(pair))
         .rejects.toThrow(PricesNotAvailableError);
     });
   });
 
   describe('median', () => {
     it('should calculate the median price correctly for odd number of prices', async () => {
-      const pair = 'BTC/USDT';
       const result = await priceIndexCalculator.median(pair);
 
       // Sorted mid-prices: 89950, 90050, 90100
@@ -62,7 +62,6 @@ describe('CalculatePriceIndex', () => {
         fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90200, ask: 90300 })
       } as any);
 
-      const pair = 'BTC/USDT';
       const result = await priceIndexCalculator.median(pair);
 
       // Sorted mid-prices: 89950, 90050, 90100, 90250
@@ -73,11 +72,8 @@ describe('CalculatePriceIndex', () => {
     });
 
     it('should throw PricesNotAvailableError when no prices', async () => {
-      mockConnectors.forEach(connector =>
-        (connector.fetchOrderBook as jest.Mock).mockRejectedValue(new PricesNotAvailableError())
-      );
-
-      await expect(priceIndexCalculator.median('BTC/USDT'))
+      const calculatePriceIndex = new CalculatePriceIndex(new ConnectorRegistry());
+      await expect(calculatePriceIndex.median(pair))
         .rejects.toThrow(PricesNotAvailableError);
     });
   });
