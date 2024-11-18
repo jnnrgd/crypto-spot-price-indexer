@@ -1,6 +1,7 @@
 import { OrderBook } from '../domain/OrderBook';
+import { Pair } from '../domain/Pair';
 
 export interface ExchangeConnector {
-  fetchOrderBook(pair: string): Promise<OrderBook>;
+  fetchOrderBook(pair: Pair): Promise<OrderBook>;
   getName(): string;
 }
