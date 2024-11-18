@@ -1,7 +1,8 @@
+import { PricesNotAvailableError } from '../domain/errors/PriceNotAvailableError';
 import { Pair } from '../domain/Pair';
 import { PriceIndex } from '../domain/PriceIndex';
 import { ConnectorRegistryPort } from '../ports/ConnectorRegistryPort';
-import { PricesNotAvailableError } from './errors';
+
 
 export class CalculatePriceIndex {
   private connectorRegistry: ConnectorRegistryPort;

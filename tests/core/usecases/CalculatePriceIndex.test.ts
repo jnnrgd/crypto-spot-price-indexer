@@ -1,8 +1,8 @@
 import { CalculatePriceIndex } from '../../../src/core/usecases/CalculatePriceIndex';
 import { ConnectorRegistry } from '../../../src/adapters/connectors/ConnectorRegistry';
 import { ExchangeConnector } from '../../../src/core/ports/ExchangeConnector';
-import { PricesNotAvailableError } from '../../../src/core/usecases/errors';
 import { Pair } from '../../../src/core/domain/Pair';
+import { PricesNotAvailableError } from '../../../src/core/domain/errors/PriceNotAvailableError';
 
 describe('CalculatePriceIndex', () => {
   let priceIndexCalculator: CalculatePriceIndex;
