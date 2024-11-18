@@ -1,4 +1,4 @@
-import { Pair } from "./Pair";
+import { Pair } from './Pair';
 
 export interface PriceIndex {
   pair: Pair;

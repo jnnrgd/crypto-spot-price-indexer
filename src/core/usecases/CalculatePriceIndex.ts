@@ -4,7 +4,7 @@ import { ConnectorRegistryPort } from '../ports/ConnectorRegistryPort';
 import { PricesNotAvailableError } from './errors';
 
 export class CalculatePriceIndex {
-  private connectorRegistry: ConnectorRegistryPort
+  private connectorRegistry: ConnectorRegistryPort;
   constructor(connectorRegistry: ConnectorRegistryPort) {
     this.connectorRegistry = connectorRegistry;
   }
