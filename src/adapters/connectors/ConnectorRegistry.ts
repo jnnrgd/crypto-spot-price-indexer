@@ -1,6 +1,6 @@
 import { ConnectorRegistryPort } from '../../core/ports/ConnectorRegistryPort';
 import { ExchangeConnector } from '../../core/ports/ExchangeConnector';
-import { logger } from '../../infrastructure/configs/logger';
+import { logger } from '../../infrastructure/logging/logger';
 
 export class ConnectorRegistry implements ConnectorRegistryPort {
   private connectors: Map<string, any> = new Map();

@@ -1,6 +1,6 @@
 import { ConnectorRegistry } from './adapters/connectors/ConnectorRegistry';
-import { app } from './infrastructure/configs/HttpServer';
-import { logger } from './infrastructure/configs/logger';
+import { app } from './infrastructure/http/HttpServer';
+import { logger } from './infrastructure/logging/logger';
 
 const PORT = process.env.PORT || 3000;
 
@@ -10,13 +10,23 @@ const connectorRegistry = new ConnectorRegistry();
 connectorRegistry.initialize();
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on http://localhost:${PORT}`);
+}).on('error', (err) => {
+  logger.error(err);
 });
 
 process.on('SIGINT', async () => {
-  console.log('Shutting down server...');
+  logger.info('Shutting down server...');
   server.close(() => {
-    console.log('Server closed.');
+    logger.info('Server closed.');
+    process.exit(0);
+  });
+});
+
+process.on('SIGTERM', async () => {
+  logger.info('Shutting down server...');
+  server.close(() => {
+    logger.info('Server closed.');
     process.exit(0);
   });
 });
