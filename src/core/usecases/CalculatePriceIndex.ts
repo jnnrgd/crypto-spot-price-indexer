@@ -9,17 +9,22 @@ export class CalculatePriceIndex {
     this.connectorRegistry = connectorRegistry;
   }
 
-  async mean(pair: Pair): Promise<PriceIndex> {
-    const prices = await Promise.all(
+  private async getPrices(pair: Pair): Promise<number[]> {
+    const prices = (await Promise.all(
       this.connectorRegistry.getConnectors().map(async (connector) => {
         const orderBook = await connector.fetchTopOfBook(pair);
-        return (orderBook.bid + orderBook.ask) / 2;
+        return orderBook ? (orderBook.bid + orderBook.ask) / 2 : null;
       })
-    );
+    )).filter((price): price is number => price !== null);
 
     if (prices.length === 0) {
       throw new PricesNotAvailableError();
     }
+    return prices;
+  }
+
+  async mean(pair: Pair): Promise<PriceIndex> {
+    const prices = await this.getPrices(pair);
 
     const averagePrice =
       prices.reduce((acc, price) => acc + price, 0) / prices.length;
@@ -32,16 +37,7 @@ export class CalculatePriceIndex {
   }
 
   async median(pair: Pair): Promise<PriceIndex> {
-    const prices = await Promise.all(
-      this.connectorRegistry.getConnectors().map(async (connector) => {
-        const orderBook = await connector.fetchTopOfBook(pair);
-        return (orderBook.bid + orderBook.ask) / 2;
-      })
-    );
-
-    if (prices.length === 0) {
-      throw new PricesNotAvailableError();
-    }
+    const prices = await this.getPrices(pair);
 
     const sortedPrices = [...prices].sort((a, b) => a - b);
     const mid = Math.floor(sortedPrices.length / 2);
