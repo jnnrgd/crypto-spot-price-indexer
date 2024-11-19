@@ -1,5 +1,5 @@
 {
-  "name": "global-price-index",
+  "name": "crypto-spot-price-indexer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "start": "node dist/app.js",
     "dev": "ts-node src/app.ts",
     "build": "tsc",
-    "test": "jest --passWithNoTests --coverage",
+    "test": "jest --coverage",
     "lint": "eslint --config eslint.config.js 'src/**/*.{js,ts}'",
     "format": "prettier --write 'src/**/*.{js,ts,json}'"
   },

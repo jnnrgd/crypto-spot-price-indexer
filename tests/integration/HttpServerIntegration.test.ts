@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { app } from '../../src/infrastructure/configs/HttpServer';
+import { app } from '../../src/infrastructure/http/HttpServer';
 import logHandler from '../../src/adapters/api/middleware/LogHandler';
 
 jest.mock('../../src/adapters/api/middleware/LogHandler', () => {
