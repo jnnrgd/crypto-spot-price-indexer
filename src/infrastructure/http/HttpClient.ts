@@ -30,7 +30,7 @@ export class HttpClient {
     });
   }
 
-  public async get<T>(url: string, headers?: Record<string, string>): Promise<T> {
+  public async get<T>(url: string, params?: Record<string, any>, headers?: Record<string, any>): Promise<T> {
     try {
       const response = await this.client.get<T>(url, { headers });
       return response.data;
