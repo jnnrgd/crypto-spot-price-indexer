@@ -4,7 +4,7 @@ import { logger } from '../../infrastructure/logging/logger';
 
 export class ConnectorRegistry implements ConnectorRegistryPort {
   private connectors: Map<string, any> = new Map();
-  constructor() { }
+  constructor() {}
 
   public register(connector: ExchangeConnector) {
     this.connectors.set(connector.getName(), connector);

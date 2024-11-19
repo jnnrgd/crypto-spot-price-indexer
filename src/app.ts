@@ -9,11 +9,13 @@ logger.info('Starting application');
 const connectorRegistry = new ConnectorRegistry();
 connectorRegistry.initialize();
 
-const server = app.listen(PORT, () => {
-  logger.info(`Server running on http://localhost:${PORT}`);
-}).on('error', (err) => {
-  logger.error(err);
-});
+const server = app
+  .listen(PORT, () => {
+    logger.info(`Server running on http://localhost:${PORT}`);
+  })
+  .on('error', (err) => {
+    logger.error(err);
+  });
 
 process.on('SIGINT', async () => {
   logger.info('Shutting down server...');
