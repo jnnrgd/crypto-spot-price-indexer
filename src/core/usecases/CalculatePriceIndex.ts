@@ -12,7 +12,7 @@ export class CalculatePriceIndex {
   async mean(pair: Pair): Promise<PriceIndex> {
     const prices = await Promise.all(
       this.connectorRegistry.getConnectors().map(async (connector) => {
-        const orderBook = await connector.fetchOrderBook(pair);
+        const orderBook = await connector.fetchTopOfBook(pair);
         return (orderBook.bid + orderBook.ask) / 2;
       })
     );
@@ -34,7 +34,7 @@ export class CalculatePriceIndex {
   async median(pair: Pair): Promise<PriceIndex> {
     const prices = await Promise.all(
       this.connectorRegistry.getConnectors().map(async (connector) => {
-        const orderBook = await connector.fetchOrderBook(pair);
+        const orderBook = await connector.fetchTopOfBook(pair);
         return (orderBook.bid + orderBook.ask) / 2;
       })
     );
