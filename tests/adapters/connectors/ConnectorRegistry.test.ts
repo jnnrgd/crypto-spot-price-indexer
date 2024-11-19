@@ -5,7 +5,7 @@ describe('ConnectorRegistry', () => {
   // Create a mock connector for testing
   class MockConnector implements ExchangeConnector {
     getName(): string { return 'MockExchange'; }
-    fetchOrderBook: jest.Mock = jest.fn();
+    fetchTopOfBook: jest.Mock = jest.fn();
   }
 
   afterEach(() => {
@@ -45,7 +45,7 @@ describe('ConnectorRegistry', () => {
       const connector1 = new MockConnector();
       class MockConnector2 implements ExchangeConnector {
         getName(): string { return "MockConnector2"; }
-        fetchOrderBook: jest.Mock = jest.fn();
+        fetchTopOfBook: jest.Mock = jest.fn();
       }
       const connector2 = new MockConnector2();
 

@@ -15,13 +15,13 @@ describe('CalculatePriceIndex', () => {
   beforeEach(() => {
     mockConnectors = [
       {
-        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 },)
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 },)
       },
       {
-        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 89900, ask: 90000 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 89900, ask: 90000 })
       },
       {
-        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90050, ask: 90150 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90050, ask: 90150 })
       }
     ] as any;
 
@@ -59,7 +59,7 @@ describe('CalculatePriceIndex', () => {
 
     it('should calculate the median price correctly for even number of prices', async () => {
       mockConnectors.push({
-        fetchOrderBook: jest.fn().mockResolvedValue({ bid: 90200, ask: 90300 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90200, ask: 90300 })
       } as any);
 
       const result = await priceIndexCalculator.median(pair);
