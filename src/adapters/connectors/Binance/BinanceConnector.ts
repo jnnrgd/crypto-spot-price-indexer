@@ -90,7 +90,7 @@ export class BinanceConnector implements ExchangeConnector {
     if (u <= this.lastUpdateId) return;
 
     if (U > this.lastUpdateId + 1) {
-      logger.error('Out-of-sync event received');
+      logger.debug('Out-of-sync event received');
       return;
     }
 
@@ -139,6 +139,6 @@ export class BinanceConnector implements ExchangeConnector {
     };
   }
   getName(): string {
-    return 'Binance';
+    return BinanceConnector.name;
   }
 }
