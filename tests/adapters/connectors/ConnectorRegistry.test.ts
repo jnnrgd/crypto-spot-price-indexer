@@ -6,6 +6,9 @@ describe('ConnectorRegistry', () => {
   class MockConnector implements ExchangeConnector {
     getName(): string { return 'MockExchange'; }
     fetchTopOfBook: jest.Mock = jest.fn();
+    connect: jest.Mock = jest.fn();
+    disconnect: jest.Mock = jest.fn();
+    isConnected: jest.Mock = jest.fn();
   }
 
   afterEach(() => {
@@ -46,6 +49,9 @@ describe('ConnectorRegistry', () => {
       class MockConnector2 implements ExchangeConnector {
         getName(): string { return "MockConnector2"; }
         fetchTopOfBook: jest.Mock = jest.fn();
+        connect: jest.Mock = jest.fn();
+        disconnect: jest.Mock = jest.fn();
+        isConnected: jest.Mock = jest.fn();
       }
       const connector2 = new MockConnector2();
 

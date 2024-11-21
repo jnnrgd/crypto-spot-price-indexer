@@ -93,7 +93,7 @@ export class BinanceConnector implements ExchangeConnector {
     this.ws.close();
   }
 
-  public isConnected(): boolean {
+  public async isConnected(): Promise<boolean> {
     return this.ws && this.ws.isConnected();
   }
 

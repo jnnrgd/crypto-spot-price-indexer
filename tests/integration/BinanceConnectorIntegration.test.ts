@@ -29,7 +29,7 @@ describe('BinanceConnectorIntegration', () => {
   });
 
   afterEach(async () => {
-    binanceConnector.isConnected() && await binanceConnector.disconnect();
+    await binanceConnector.isConnected() && await binanceConnector.disconnect();
     mockWsServer.clients.forEach((client) => client.close(1000));
     mockWsServer.removeAllListeners();
     mockWsServer.close();
