@@ -5,10 +5,11 @@ import { ConnectorRegistry } from '../../connectors/ConnectorRegistry';
 import { InvalidPairError } from '../../../core/domain/errors/InvalidPairError';
 
 const connectorRegistry = new ConnectorRegistry();
-const calculatePriceIndex = new CalculatePriceIndex(connectorRegistry);
+connectorRegistry.initialize();
 
 export class PriceIndexController {
   static async getPriceIndex(req: Request, res: Response, next: NextFunction) {
+    const calculatePriceIndex = new CalculatePriceIndex(connectorRegistry);
     try {
       const { pair } = req.params;
 
