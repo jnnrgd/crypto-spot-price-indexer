@@ -15,13 +15,19 @@ describe('CalculatePriceIndex', () => {
   beforeEach(() => {
     mockConnectors = [
       {
-        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 },)
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90000, ask: 90100 }),
+        isConnected: jest.fn().mockResolvedValue(true),
+        connect: jest.fn().mockResolvedValue(undefined),
       },
       {
-        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 89900, ask: 90000 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 89900, ask: 90000 }),
+        isConnected: jest.fn().mockResolvedValue(true),
+        connect: jest.fn().mockResolvedValue(undefined),
       },
       {
-        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90050, ask: 90150 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90050, ask: 90150 }),
+        isConnected: jest.fn().mockResolvedValue(true),
+        connect: jest.fn().mockResolvedValue(undefined),
       }
     ] as any;
 
@@ -59,7 +65,9 @@ describe('CalculatePriceIndex', () => {
 
     it('should calculate the median price correctly for even number of prices', async () => {
       mockConnectors.push({
-        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90200, ask: 90300 })
+        fetchTopOfBook: jest.fn().mockResolvedValue({ bid: 90200, ask: 90300 }),
+        isConnected: jest.fn().mockResolvedValue(true),
+        connect: jest.fn().mockResolvedValue(undefined),
       } as any);
 
       const result = await priceIndexCalculator.median(pair);
@@ -75,6 +83,30 @@ describe('CalculatePriceIndex', () => {
       const calculatePriceIndex = new CalculatePriceIndex(new ConnectorRegistry());
       await expect(calculatePriceIndex.median(pair))
         .rejects.toThrow(PricesNotAvailableError);
+    });
+  });
+
+  describe('getPrices', () => {
+    it('should return prices from all connectors', async () => {
+      const prices = await priceIndexCalculator['getPrices'](pair);
+
+      expect(prices).toEqual([90050, 89950, 90100]);
+    });
+
+    it('should connect to disconnected connectors', async () => {
+      (mockConnectors[0].isConnected as jest.Mock).mockResolvedValue(false);
+
+      await priceIndexCalculator['getPrices'](pair);
+
+      expect(mockConnectors[0].connect).toHaveBeenCalled();
+    });
+
+    it('should throw if all fetchTopOfBook return null', async () => {
+      mockConnectors.forEach((connector) => {
+        (connector.fetchTopOfBook as jest.Mock).mockResolvedValue(null);
+      });
+
+      await expect(priceIndexCalculator['getPrices'](pair)).rejects.toThrow(PricesNotAvailableError);
     });
   });
 });
