@@ -1,15 +1,25 @@
 import { WebSocketServer } from 'ws';
 import nock from 'nock';
 import { BinanceConnector } from '../../src/adapters/connectors/Binance/BinanceConnector';
+import { binanceConfig } from '../../src/infrastructure/configs/AppConfig';
 
+
+const {
+  httpUrl,
+  wsPort,
+  wsPath,
+  wsUrl,
+  orderbookPath,
+  orderbookStream,
+} = binanceConfig;
 
 describe('BinanceConnectorIntegration', () => {
   let mockWsServer: WebSocketServer;
   let binanceConnector: BinanceConnector;
 
   beforeAll(() => {
-    nock('https://api.binance.com')
-      .get('/depth')
+    nock(httpUrl)
+      .get(orderbookPath)
       .query({ symbol: 'BTCUSDT', limit: 1 })
       .reply(200, {
         lastUpdateId: 12345,
@@ -24,7 +34,7 @@ describe('BinanceConnectorIntegration', () => {
   });
 
   beforeEach(() => {
-    mockWsServer = new WebSocketServer({ port: 12345 });
+    mockWsServer = new WebSocketServer({ port: wsPort });
     binanceConnector = new BinanceConnector();
   });
 
@@ -64,7 +74,7 @@ describe('BinanceConnectorIntegration', () => {
       await binanceConnector.connect();
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(message.method).toBe('SUBSCRIBE');
-      expect(message.params).toEqual(['btcusdt@depth']);
+      expect(message.params).toEqual([orderbookStream]);
       expect(message.id).toBeTruthy();
     });
     it('should send unsubscribe message', async () => {
@@ -82,7 +92,7 @@ describe('BinanceConnectorIntegration', () => {
       expect(unsubMessages.length).toBe(1);
       expect(unsubMessages).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ params: ['btcusdt@depth'], id: expect.anything(), method: 'UNSUBSCRIBE' }),
+          expect.objectContaining({ params: [orderbookStream], id: expect.anything(), method: 'UNSUBSCRIBE' }),
         ])
       );
     });

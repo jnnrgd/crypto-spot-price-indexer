@@ -2,7 +2,6 @@ import { BinanceConnector } from "../../src/adapters/connectors/Binance/BinanceC
 import { ConnectorRegistry } from "../../src/adapters/connectors/ConnectorRegistry";
 import { HuobiConnector } from "../../src/adapters/connectors/Huobi/HuobiConnector";
 import { KrakenConnector } from "../../src/adapters/connectors/Kraken/KrakenConnector";
-import { TopOfBook } from "../../src/core/domain/TopOfBook";
 
 
 describe('ConnectorRegistry Integration Test', () => {

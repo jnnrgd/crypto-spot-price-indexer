@@ -32,6 +32,7 @@ export class HttpClient {
 
   public async get<T>(url: string, params?: Record<string, any>, headers?: Record<string, any>): Promise<T> {
     try {
+      logger.error(`Requesting ${url}`);
       const response = await this.client.get<T>(url, { params, headers });
       return response.data;
     } catch (error) {

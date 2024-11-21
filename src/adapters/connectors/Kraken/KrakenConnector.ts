@@ -1,19 +1,26 @@
 import { Pair } from '../../../core/domain/Pair';
 import { TopOfBook } from '../../../core/domain/TopOfBook';
 import { ExchangeConnector } from '../../../core/ports/ExchangeConnector';
+import { krakenConfig } from '../../../infrastructure/configs/AppConfig';
 import { HttpClient } from '../../../infrastructure/http/HttpClient';
 import { logger } from '../../../infrastructure/logging/logger';
 import { RequestOrderBookDto, ResponseOrderBookDto, ResponseSystemStatusDto } from './dtos';
 
+const {
+  httpUrl,
+  orderbookPath,
+  healthPath,
+} = krakenConfig;
+
 export class KrakenConnector implements ExchangeConnector {
   private httpClient: HttpClient;
   constructor() {
-    this.httpClient = new HttpClient('https://api.kraken.com/0/public/');
+    this.httpClient = new HttpClient(httpUrl);
     this.httpClient.configure();
   }
 
   public async connect(): Promise<void> {
-    const response = await this.httpClient.get<ResponseSystemStatusDto>('SystemStatus');
+    const response = await this.httpClient.get<ResponseSystemStatusDto>(healthPath);
     if (response.error.length > 0) {
       throw new Error(response.error.join(', '));
     }
@@ -27,7 +34,7 @@ export class KrakenConnector implements ExchangeConnector {
   }
 
   public async isConnected(): Promise<boolean> {
-    const response = await this.httpClient.get<ResponseSystemStatusDto>('SystemStatus');
+    const response = await this.httpClient.get<ResponseSystemStatusDto>(healthPath);
     if (response.error.length === 0 && response.result.status === 'online') {
       return true;
     }
@@ -39,7 +46,7 @@ export class KrakenConnector implements ExchangeConnector {
       pair: `${pair.asset}${pair.quote}`,
       count: 1,
     };
-    const response = await this.httpClient.get<ResponseOrderBookDto>('Depth', params);
+    const response = await this.httpClient.get<ResponseOrderBookDto>(orderbookPath, params);
     if (response.error && response.error.length > 0) {
       logger.error(response.error.join(', '));
       return null;

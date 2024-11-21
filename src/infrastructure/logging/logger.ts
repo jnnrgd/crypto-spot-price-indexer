@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { logLevel } from '../configs/AppConfig';
 
 const levels = {
   error: 0,
@@ -8,9 +9,7 @@ const levels = {
   debug: 4,
 };
 const level = () => {
-  const env = process.env.NODE_ENV || 'development';
-  const isDevelopment = env === 'development';
-  return isDevelopment ? 'debug' : 'warn';
+  return logLevel;
 };
 
 const colors = {

@@ -1,19 +1,26 @@
 import { Pair } from '../../../core/domain/Pair';
 import { TopOfBook } from '../../../core/domain/TopOfBook';
 import { ExchangeConnector } from '../../../core/ports/ExchangeConnector';
+import { huobiConfig } from '../../../infrastructure/configs/AppConfig';
 import { HttpClient } from '../../../infrastructure/http/HttpClient';
 import { logger } from '../../../infrastructure/logging/logger';
 import { MarketStatus, OrderBookDepthType, OrderBookRequest, OrderBookResponse, SystemStatusResponse } from './dtos';
 
+const {
+  httpUrl,
+  orderbookPath,
+  healthPath,
+} = huobiConfig;
+
 export class HuobiConnector implements ExchangeConnector {
   private httpClient: HttpClient;
   constructor() {
-    this.httpClient = new HttpClient('https://api.huobi.pro/');
+    this.httpClient = new HttpClient(httpUrl);
     this.httpClient.configure();
   }
 
   public async connect(): Promise<void> {
-    const response = await this.httpClient.get<SystemStatusResponse>('v2/market-status');
+    const response = await this.httpClient.get<SystemStatusResponse>(healthPath);
     if (response.code != 200) {
       throw new Error(response.message);
     }
@@ -27,7 +34,7 @@ export class HuobiConnector implements ExchangeConnector {
   }
 
   public async isConnected(): Promise<boolean> {
-    const response = await this.httpClient.get<SystemStatusResponse>('v2/market-status');
+    const response = await this.httpClient.get<SystemStatusResponse>(healthPath);
     if (response.code === 200 && response.data.marketStatus === MarketStatus.Normal) {
       return true;
     }
@@ -40,7 +47,7 @@ export class HuobiConnector implements ExchangeConnector {
       depth: 5,
       type: OrderBookDepthType.Step0,
     };
-    const response = await this.httpClient.get<OrderBookResponse>('market/depth', params);
+    const response = await this.httpClient.get<OrderBookResponse>(orderbookPath, params);
     if (response.status !== 'ok') {
       logger.error(response.status);
       return null;

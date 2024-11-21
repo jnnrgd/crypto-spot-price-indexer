@@ -1,13 +1,19 @@
 import { KrakenConnector } from '../../src/adapters/connectors/Kraken/KrakenConnector';
 import nock from 'nock';
+import { krakenConfig } from '../../src/infrastructure/configs/AppConfig';
 
+const {
+  httpUrl,
+  orderbookPath,
+  healthPath,
+} = krakenConfig;
 
 describe('KrakenConnector Integration', () => {
   let krakenConnector: KrakenConnector;
 
   beforeEach(() => {
-    nock('https://api.kraken.com/0/public/')
-      .get('/Depth')
+    nock(httpUrl)
+      .get(orderbookPath)
       .query({ pair: 'BTCUSDT', count: 1 })
       .reply(200, {
         error: [],
@@ -18,7 +24,7 @@ describe('KrakenConnector Integration', () => {
           }
         }
       })
-      .get('/SystemStatus')
+      .get(healthPath)
       .reply(200, {
         error: [],
         result: {
@@ -43,8 +49,8 @@ describe('KrakenConnector Integration', () => {
     it('should throw an error when Kraken is not online', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/SystemStatus')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           error: [],
           result: {
@@ -59,8 +65,8 @@ describe('KrakenConnector Integration', () => {
     it('should throw an error when there are errors in the response', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/SystemStatus')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           error: ['Some error'],
           result: {
@@ -90,8 +96,8 @@ describe('KrakenConnector Integration', () => {
     it('should return null when there are errors in the response', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/Depth')
+      nock(httpUrl)
+        .get(orderbookPath)
         .query({ pair: 'BTCUSDT', count: 1 })
         .reply(200, {
           error: ['Some error'],
@@ -109,8 +115,8 @@ describe('KrakenConnector Integration', () => {
     it('should return null when bid or ask is not a number', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/Depth')
+      nock(httpUrl)
+        .get(orderbookPath)
         .query({ pair: 'BTCUSDT', count: 1 })
         .reply(200, {
           error: [],
@@ -135,8 +141,8 @@ describe('KrakenConnector Integration', () => {
     it('should return false when Kraken is not online', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/SystemStatus')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           error: [],
           result: {
@@ -151,8 +157,8 @@ describe('KrakenConnector Integration', () => {
     it('should return false when there are errors in the response', async () => {
       krakenConnector = new KrakenConnector();
       nock.cleanAll();
-      nock('https://api.kraken.com/0/public/')
-        .get('/SystemStatus')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           error: ['Some error'],
           result: {

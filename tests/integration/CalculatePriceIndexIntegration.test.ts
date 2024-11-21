@@ -3,14 +3,33 @@ import { MarketStatus } from "../../src/adapters/connectors/Huobi/dtos";
 import { WebSocketServer } from "ws";
 import { ConnectorRegistry } from "../../src/adapters/connectors/ConnectorRegistry";
 import { CalculatePriceIndex } from "../../src/core/usecases/CalculatePriceIndex";
+import { binanceConfig, huobiConfig, krakenConfig } from "../../src/infrastructure/configs/AppConfig";
+
+const {
+  httpUrl: krakenHttpUrl,
+  orderbookPath: krakenOrderbookPath,
+  healthPath: krakenHealthPath,
+} = krakenConfig;
+
+const {
+  httpUrl: huobiHttpUrl,
+  orderbookPath: huobiOrderbookPath,
+  healthPath: huobiHealthPath,
+} = huobiConfig;
+
+const {
+  httpUrl: binanceHttpUrl,
+  orderbookPath: binanceOrderbookPath,
+  wsPort: binanceWsPort,
+} = binanceConfig;
 
 describe('CalculatePriceIndex Integration', () => {
   let mockWsServer: WebSocketServer;
   let registry: ConnectorRegistry;
 
   beforeEach(() => {
-    nock('https://api.huobi.pro/')
-      .get('/market/depth')
+    nock(huobiHttpUrl)
+      .get(huobiOrderbookPath)
       .query({ symbol: 'btcusdt', depth: 5, type: 'step0' })
       .reply(200, {
         status: 'ok',
@@ -23,7 +42,7 @@ describe('CalculatePriceIndex Integration', () => {
           asks: [[96391.16, 0.6682310659994132], [96392.15, 0.005044], [96392.87, 0.010407], [96392.92, 0.005508], [96395.98, 0.002656]],
         },
       })
-      .get('/v2/market-status')
+      .get(huobiHealthPath)
       .reply(200, {
         code: 200,
         message: 'success',
@@ -33,8 +52,8 @@ describe('CalculatePriceIndex Integration', () => {
       })
       .persist();
 
-    nock('https://api.binance.com')
-      .get('/depth')
+    nock(binanceHttpUrl)
+      .get(binanceOrderbookPath)
       .query({ symbol: 'BTCUSDT', limit: 1 })
       .reply(200, {
         lastUpdateId: 12345,
@@ -43,8 +62,8 @@ describe('CalculatePriceIndex Integration', () => {
       })
       .persist();
 
-    nock('https://api.kraken.com/0/public/')
-      .get('/Depth')
+    nock(krakenHttpUrl)
+      .get(krakenOrderbookPath)
       .query({ pair: 'BTCUSDT', count: 1 })
       .reply(200, {
         error: [],
@@ -55,7 +74,7 @@ describe('CalculatePriceIndex Integration', () => {
           }
         }
       })
-      .get('/SystemStatus')
+      .get(krakenHealthPath)
       .reply(200, {
         error: [],
         result: {
@@ -65,7 +84,7 @@ describe('CalculatePriceIndex Integration', () => {
       })
       .persist();
 
-    mockWsServer = new WebSocketServer({ port: 12345 });
+    mockWsServer = new WebSocketServer({ port: binanceWsPort });
     registry = new ConnectorRegistry();
     registry.initialize();
   });
