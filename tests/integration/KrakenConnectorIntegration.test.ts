@@ -14,11 +14,11 @@ describe('KrakenConnector Integration', () => {
   beforeEach(() => {
     nock(httpUrl)
       .get(orderbookPath)
-      .query({ pair: 'BTCUSDT', count: 1 })
+      .query({ pair: 'XBTUSDT', count: 1 })
       .reply(200, {
         error: [],
         result: {
-          BTCUSDT: {
+          XBTUSDT: {
             bids: [['40000.00', '1.0']],
             asks: [['40001.00', '1.5']],
           }
@@ -98,11 +98,11 @@ describe('KrakenConnector Integration', () => {
       nock.cleanAll();
       nock(httpUrl)
         .get(orderbookPath)
-        .query({ pair: 'BTCUSDT', count: 1 })
+        .query({ pair: 'XBTUSDT', count: 1 })
         .reply(200, {
           error: ['Some error'],
           result: {
-            BTCUSDT: {
+            XBTUSDT: {
               bids: [['40000.00', '1.0']],
               asks: [['40001.00', '1.5']],
             }
@@ -117,11 +117,11 @@ describe('KrakenConnector Integration', () => {
       nock.cleanAll();
       nock(httpUrl)
         .get(orderbookPath)
-        .query({ pair: 'BTCUSDT', count: 1 })
+        .query({ pair: 'XBTUSDT', count: 1 })
         .reply(200, {
           error: [],
           result: {
-            BTCUSDT: {
+            XBTUSDT: {
               bids: [['Not a number', '1.0']],
               asks: [['40001.00', '1.5']],
             }

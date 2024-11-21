@@ -79,11 +79,11 @@ describe('KrakenConnector', () => {
 
   describe('fetchTopOfBook', () => {
     it('should return top of book data when response is successful', async () => {
-      const pair: Pair = { asset: 'BTC', quote: 'USD' };
+      const pair: Pair = { asset: 'BTC', quote: 'USDT' };
       httpClientMock.get.mockResolvedValue({
         error: [],
         result: {
-          BTCUSD: {
+          XBTUSDT: {
             bids: [['97000.00', '1', 12345]],
             asks: [['97001.00', '1', 12345]],
           }

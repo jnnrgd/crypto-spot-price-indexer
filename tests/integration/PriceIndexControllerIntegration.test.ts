@@ -69,7 +69,7 @@ describe('PriceIndexControllerIntegration', () => {
 
     nock(krakenHttpUrl)
       .get(krakenOrderbookPath)
-      .query({ pair: 'BTCUSDT', count: 1 })
+      .query({ pair: 'XBTUSDT', count: 1 })
       .reply(200, {
         error: [],
         result: {
@@ -106,7 +106,7 @@ describe('PriceIndexControllerIntegration', () => {
         asset: 'BTC',
         quote: 'USDT',
       },
-      price: 96391.56,
+      price: 96391.39499999999,
       timestamp: expect.any(Number),
     });
   });

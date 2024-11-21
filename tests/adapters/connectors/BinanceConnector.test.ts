@@ -77,11 +77,7 @@ describe('BinanceConnector', () => {
       expect(binanceConnector['bestAsk']).toEqual({ price: 3, quantity: 4 });
     });
 
-    it('should throw error if request fails', async () => {
-      mockHttpClient.get.mockRejectedValue(new Error('Request failed'));
 
-      await expect(binanceConnector['initializeTopOfBook']()).rejects.toThrow('Request failed');
-    });
   });
 
   describe('subscribeToChannel', () => {

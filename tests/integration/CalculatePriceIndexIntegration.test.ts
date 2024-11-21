@@ -64,11 +64,11 @@ describe('CalculatePriceIndex Integration', () => {
 
     nock(krakenHttpUrl)
       .get(krakenOrderbookPath)
-      .query({ pair: 'BTCUSDT', count: 1 })
+      .query({ pair: 'XBTUSDT', count: 1 })
       .reply(200, {
         error: [],
         result: {
-          BTCUSDT: {
+          XBTUSDT: {
             bids: [['96390.91', '2.0E-4']],
             asks: [['96392.87, 0.010407']],
           }
