@@ -25,11 +25,10 @@ export class BinanceConnector implements ExchangeConnector {
   private lastUpdateId: number = 0;
   private id: string;
   constructor() {
-    this.id = 'test';
+    this.id = 'ERZERAZEFEDAQEDCEDQSXCZA214144RDEAQ';
     this.httpClient = new HttpClient(httpUrl);
     this.httpClient.configure();
     this.ws = this.configureWebsocket(`${wsUrl}:${wsPort}${wsPath}`);
-    logger.error(httpUrl);
   }
 
   public async connect(): Promise<void> {
@@ -51,7 +50,7 @@ export class BinanceConnector implements ExchangeConnector {
   handleMessage = (data: WebSocket.RawData) => {
     const message = JSON.parse(data.toString());
     if (message.e === 'depthUpdate') {
-      logger.warn('New depth update received');
+      logger.debug('New depth update received');
       this.handleDepthUpdate(message as WebsocketResponseOrderBookDto);
     }
     if (message.result === null) {
@@ -114,7 +113,8 @@ export class BinanceConnector implements ExchangeConnector {
     if (u <= this.lastUpdateId) return;
 
     if (U > this.lastUpdateId + 1) {
-      logger.debug('Out-of-sync event received');
+      logger.warn('Gap detected. Refetching snapshot...');
+      this.initializeTopOfBook();
       return;
     }
 

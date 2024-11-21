@@ -42,8 +42,9 @@ export class KrakenConnector implements ExchangeConnector {
   }
 
   public async fetchTopOfBook(pair: Pair): Promise<TopOfBook | null> {
+    const asset = pair.asset === 'BTC' ? 'XBT' : pair.asset;
     const params: RequestOrderBookDto = {
-      pair: `${pair.asset}${pair.quote}`,
+      pair: `${asset}${pair.quote}`,
       count: 1,
     };
     const response = await this.httpClient.get<ResponseOrderBookDto>(orderbookPath, params);
@@ -52,7 +53,7 @@ export class KrakenConnector implements ExchangeConnector {
       return null;
     }
 
-    const result = response.result[`${pair.asset}${pair.quote}`];
+    const result = response.result[`${asset}${pair.quote}`];
     if (!result) {
       return null;
     }
