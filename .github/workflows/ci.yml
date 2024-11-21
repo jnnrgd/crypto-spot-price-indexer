@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Copy Environment Variables
+        run: cp .env.ci .env
+
       - name: Install Dependencies
         run: npm install
 

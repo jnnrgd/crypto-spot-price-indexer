@@ -1,13 +1,20 @@
 import { MarketStatus } from '../../src/adapters/connectors/Huobi/dtos';
 import { HuobiConnector } from '../../src/adapters/connectors/Huobi/HuobiConnector';
 import nock from 'nock';
+import { huobiConfig } from '../../src/infrastructure/configs/AppConfig';
+
+const {
+  httpUrl,
+  orderbookPath,
+  healthPath,
+} = huobiConfig;
 
 describe('HuobiConnector Integration', () => {
   let huobiConnector: HuobiConnector;
 
   beforeEach(() => {
-    nock('https://api.huobi.pro/')
-      .get('/market/depth')
+    nock(httpUrl)
+      .get(orderbookPath)
       .query({ symbol: 'btcusdt', depth: 5, type: 'step0' })
       .reply(200, {
         status: 'ok',
@@ -20,7 +27,7 @@ describe('HuobiConnector Integration', () => {
           asks: [[96391.16, 0.6682310659994132], [96392.15, 0.005044], [96392.87, 0.010407], [96392.92, 0.005508], [96395.98, 0.002656]],
         },
       })
-      .get('/v2/market-status')
+      .get(healthPath)
       .reply(200, {
         code: 200,
         message: 'success',
@@ -45,8 +52,8 @@ describe('HuobiConnector Integration', () => {
     it('should throw an error when Huobi is not online', async () => {
       huobiConnector = new HuobiConnector();
       nock.cleanAll();
-      nock('https://api.huobi.pro/')
-        .get('/v2/market-status')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           code: 200,
           message: 'success',
@@ -61,8 +68,8 @@ describe('HuobiConnector Integration', () => {
     it('should throw an error when there are errors in the response', async () => {
       huobiConnector = new HuobiConnector();
       nock.cleanAll();
-      nock('https://api.huobi.pro/')
-        .get('/v2/market-status')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           code: 500,
           message: 'Internal Server Error',
@@ -81,8 +88,8 @@ describe('HuobiConnector Integration', () => {
     it('should return false if the market status is not normal', async () => {
       huobiConnector = new HuobiConnector();
       nock.cleanAll();
-      nock('https://api.huobi.pro/')
-        .get('/v2/market-status')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           code: 200,
           message: 'success',
@@ -97,8 +104,8 @@ describe('HuobiConnector Integration', () => {
     it('should return false if the response code is not 200', async () => {
       huobiConnector = new HuobiConnector();
       nock.cleanAll();
-      nock('https://api.huobi.pro/')
-        .get('/v2/market-status')
+      nock(httpUrl)
+        .get(healthPath)
         .reply(200, {
           code: 500,
           message: 'Internal Server Error',
@@ -118,8 +125,8 @@ describe('HuobiConnector Integration', () => {
     it('should return null if the response status is not ok', async () => {
       huobiConnector = new HuobiConnector();
       nock.cleanAll();
-      nock('https://api.huobi.pro/')
-        .get('/market/depth')
+      nock(httpUrl)
+        .get(orderbookPath)
         .query({ symbol: 'btcusdt', depth: 5, type: 'step0' })
         .reply(200, {
           status: 'error',
@@ -141,8 +148,8 @@ describe('HuobiConnector Integration', () => {
   it('should return null if bids or asks quantity is 0', async () => {
     huobiConnector = new HuobiConnector();
     nock.cleanAll();
-    nock('https://api.huobi.pro/')
-      .get('/market/depth')
+    nock(httpUrl)
+      .get(orderbookPath)
       .query({ symbol: 'btcusdt', depth: 5, type: 'step0' })
       .reply(200, {
         status: 'ok',

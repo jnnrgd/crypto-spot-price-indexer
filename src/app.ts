@@ -1,13 +1,13 @@
+import { serverPort } from './infrastructure/configs/AppConfig';
 import { app } from './infrastructure/http/HttpServer';
 import { logger } from './infrastructure/logging/logger';
 
-const PORT = process.env.PORT || 3000;
 
 logger.info('Starting application');
 
 const server = app
-  .listen(PORT, () => {
-    logger.info(`Server running on http://localhost:${PORT}`);
+  .listen(serverPort, () => {
+    logger.info(`Server running on http://localhost:${serverPort}`);
   })
   .on('error', (err) => {
     logger.error(err);

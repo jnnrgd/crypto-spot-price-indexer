@@ -6,6 +6,16 @@ import type WebSocket from 'ws';
 import { HttpClient } from '../../../infrastructure/http/HttpClient';
 import { RequestOrderBookDto, ResponseOrderBookDto, WebsocketRequestMessageDto, WebsocketResponseOrderBookDto } from './dtos';
 import { logger } from '../../../infrastructure/logging/logger';
+import { binanceConfig } from '../../../infrastructure/configs/AppConfig';
+
+const {
+  httpUrl,
+  wsUrl,
+  wsPort,
+  wsPath,
+  orderbookPath,
+  orderbookStream,
+} = binanceConfig;
 
 export class BinanceConnector implements ExchangeConnector {
   private ws: WebsocketClient;
@@ -16,9 +26,10 @@ export class BinanceConnector implements ExchangeConnector {
   private id: string;
   constructor() {
     this.id = 'test';
-    this.httpClient = new HttpClient('https://api.binance.com');
+    this.httpClient = new HttpClient(httpUrl);
     this.httpClient.configure();
-    this.ws = this.configureWebsocket('ws://127.0.0.1:12345');
+    this.ws = this.configureWebsocket(`${wsUrl}:${wsPort}${wsPath}`);
+    logger.error(httpUrl);
   }
 
   public async connect(): Promise<void> {
@@ -54,7 +65,7 @@ export class BinanceConnector implements ExchangeConnector {
       limit: 1,
     };
     const response = await this.httpClient.get<ResponseOrderBookDto>(
-      '/depth',
+      orderbookPath,
       params,
     );
     this.lastUpdateId = response.lastUpdateId;
@@ -71,7 +82,7 @@ export class BinanceConnector implements ExchangeConnector {
   private subscribeToChannel() {
     const subMessage: WebsocketRequestMessageDto = {
       method: 'SUBSCRIBE',
-      params: ['btcusdt@depth'],
+      params: [orderbookStream],
       id: this.id,
     };
     logger.debug('Subscribing to channel');
@@ -81,7 +92,7 @@ export class BinanceConnector implements ExchangeConnector {
   private async unsubscribeFromChannel(): Promise<void> {
     const unsubMessage: WebsocketRequestMessageDto = {
       method: 'UNSUBSCRIBE',
-      params: ['btcusdt@depth'],
+      params: [orderbookStream],
       id: this.id,
     };
     logger.debug('Unsubscribing from channel');
