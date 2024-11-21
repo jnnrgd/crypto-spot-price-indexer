@@ -1,13 +1,9 @@
-import { ConnectorRegistry } from './adapters/connectors/ConnectorRegistry';
 import { app } from './infrastructure/http/HttpServer';
 import { logger } from './infrastructure/logging/logger';
 
 const PORT = process.env.PORT || 3000;
 
 logger.info('Starting application');
-
-const connectorRegistry = new ConnectorRegistry();
-connectorRegistry.initialize();
 
 const server = app
   .listen(PORT, () => {

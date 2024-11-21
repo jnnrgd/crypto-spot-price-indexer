@@ -12,6 +12,9 @@ export class CalculatePriceIndex {
   private async getPrices(pair: Pair): Promise<number[]> {
     const prices = (await Promise.all(
       this.connectorRegistry.getConnectors().map(async (connector) => {
+        if (!await connector.isConnected()) {
+          await connector.connect();
+        }
         const orderBook = await connector.fetchTopOfBook(pair);
         return orderBook ? (orderBook.bid + orderBook.ask) / 2 : null;
       })
