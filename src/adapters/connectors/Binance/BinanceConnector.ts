@@ -2,7 +2,7 @@ import { TopOfBook } from '../../../core/domain/TopOfBook';
 import { Pair } from '../../../core/domain/Pair';
 import { ExchangeConnector } from '../../../core/ports/ExchangeConnector';
 import { WebsocketClient } from '../../../infrastructure/ws/WebsocketClient';
-import WebSocket from 'ws';
+import type WebSocket from 'ws';
 import { HttpClient } from '../../../infrastructure/http/HttpClient';
 import { RequestOrderBookDto, ResponseOrderBookDto, WebsocketRequestMessageDto, WebsocketResponseOrderBookDto } from './dtos';
 import { logger } from '../../../infrastructure/logging/logger';
@@ -16,17 +16,37 @@ export class BinanceConnector implements ExchangeConnector {
   private id: string;
   constructor() {
     this.id = 'test';
-    this.ws = new WebsocketClient('wss://stream.binance.com:9443/ws');
     this.httpClient = new HttpClient('https://api.binance.com');
     this.httpClient.configure();
+    this.ws = this.configureWebsocket('ws://127.0.0.1:12345');
   }
 
   public async connect(): Promise<void> {
     await this.initializeTopOfBook();
-    this.ws.onMessage(this.handleMessage);
-    this.ws.connect();
-    this.subscribeToChannel();
+    await this.ws.connect();
   }
+
+  private configureWebsocket(url: string): WebsocketClient {
+    logger.debug('Configuring websocket');
+    return new WebsocketClient({
+      url,
+      onOpen: () => {
+        this.subscribeToChannel();
+      },
+      onMessage: this.handleMessage,
+    });
+  }
+
+  handleMessage = (data: WebSocket.RawData) => {
+    const message = JSON.parse(data.toString());
+    if (message.e === 'depthUpdate') {
+      logger.warn('New depth update received');
+      this.handleDepthUpdate(message as WebsocketResponseOrderBookDto);
+    }
+    if (message.result === null) {
+      logger.debug('Sub/Unsub successful');
+    }
+  };
 
   private async initializeTopOfBook() {
     const params: RequestOrderBookDto = {
@@ -48,7 +68,7 @@ export class BinanceConnector implements ExchangeConnector {
     };
   }
 
-  private async subscribeToChannel(): Promise<void> {
+  private subscribeToChannel() {
     const subMessage: WebsocketRequestMessageDto = {
       method: 'SUBSCRIBE',
       params: ['btcusdt@depth'],
@@ -69,19 +89,12 @@ export class BinanceConnector implements ExchangeConnector {
   }
 
   public async disconnect(): Promise<void> {
-    this.unsubscribeFromChannel();
+    await this.unsubscribeFromChannel();
     this.ws.close();
   }
 
-  private handleMessage(data: WebSocket.RawData) {
-    const message = JSON.parse(data.toString());
-    if (message.e === 'depthUpdate') {
-      logger.debug('New depth update received');
-      this.handleDepthUpdate(message as WebsocketResponseOrderBookDto);
-    }
-    if (message.result === null) {
-      logger.debug('Sub/Unsub successful');
-    }
+  public isConnected(): boolean {
+    return this.ws && this.ws.isConnected();
   }
 
   private handleDepthUpdate(data: WebsocketResponseOrderBookDto) {

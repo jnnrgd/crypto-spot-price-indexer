@@ -8,6 +8,7 @@ jest.mock('../../../src/infrastructure/logging/logger', () => ({
     info: jest.fn(),
     error: jest.fn(),
     debug: jest.fn(),
+    warn: jest.fn(),
   }
 }));
 jest.mock('../../../src/infrastructure/http/HttpClient');
@@ -20,7 +21,11 @@ describe('BinanceConnector', () => {
 
   beforeEach(() => {
     mockHttpClient = new HttpClient('https://api.binance.com') as jest.Mocked<HttpClient>;
-    mockWsClient = new WebsocketClient('wss://stream.binance.com:9443/ws') as jest.Mocked<WebsocketClient>;
+    mockWsClient = new WebsocketClient({
+      url: 'wss://stream.binance.com:9443/ws',
+      onOpen: jest.fn(),
+      onMessage: jest.fn(),
+    }) as jest.Mocked<WebsocketClient>;
 
     (HttpClient as jest.Mock).mockImplementation(() => mockHttpClient);
     (WebsocketClient as jest.Mock).mockImplementation(() => mockWsClient);
@@ -52,8 +57,7 @@ describe('BinanceConnector', () => {
 
       expect(mockHttpClient.configure).toHaveBeenCalled();
       expect(mockWsClient.connect).toHaveBeenCalled();
-      expect(mockWsClient.onMessage).toHaveBeenCalled();
-      expect(mockWsClient.send).toHaveBeenCalled();
+      expect(binanceConnector['lastUpdateId']).toBe(1);
     });
   });
 
