@@ -2,6 +2,6 @@ import { TopOfBook } from '../domain/TopOfBook';
 import { Pair } from '../domain/Pair';
 
 export interface ExchangeConnector {
-  fetchTopOfBook(pair: Pair): Promise<TopOfBook>;
+  fetchTopOfBook(pair: Pair): Promise<TopOfBook | null>;
   getName(): string;
 }
