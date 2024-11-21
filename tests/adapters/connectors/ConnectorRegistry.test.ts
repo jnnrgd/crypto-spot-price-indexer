@@ -19,7 +19,7 @@ describe('ConnectorRegistry', () => {
     it('should register a connector', () => {
       const registry = new ConnectorRegistry();
       const connector = new MockConnector();
-      registry.register(connector);
+      registry['register'](connector);
 
       expect(registry.getConnector('MockExchange')).toBe(connector);
     });
@@ -29,7 +29,7 @@ describe('ConnectorRegistry', () => {
     it('should return a registered connector', () => {
       const connector = new MockConnector();
       const registry = new ConnectorRegistry();
-      registry.register(connector);
+      registry['register'](connector);
 
       const retrievedConnector = registry.getConnector('MockExchange');
       expect(retrievedConnector).toBe(connector);
@@ -55,13 +55,23 @@ describe('ConnectorRegistry', () => {
       }
       const connector2 = new MockConnector2();
 
-      registry.register(connector1);
-      registry.register(connector2);
+      registry['register'](connector1);
+      registry['register'](connector2);
 
       const allConnectors = registry.getConnectors();
       expect(allConnectors).toHaveLength(2);
       expect(allConnectors).toContain(connector1);
       expect(allConnectors).toContain(connector2);
+    });
+  });
+
+  describe('initialize', () => {
+    it('should register all connectors', () => {
+      const registry = new ConnectorRegistry();
+
+      registry.initialize();
+
+      expect(registry.getConnectors().length).toBe(3);
     });
   });
 });
