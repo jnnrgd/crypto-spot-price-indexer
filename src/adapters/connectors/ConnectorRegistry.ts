@@ -1,12 +1,15 @@
 import { ConnectorRegistryPort } from '../../core/ports/ConnectorRegistryPort';
 import { ExchangeConnector } from '../../core/ports/ExchangeConnector';
 import { logger } from '../../infrastructure/logging/logger';
+import { BinanceConnector } from './Binance/BinanceConnector';
+import { HuobiConnector } from './Huobi/HuobiConnector';
+import { KrakenConnector } from './Kraken/KrakenConnector';
 
 export class ConnectorRegistry implements ConnectorRegistryPort {
   private connectors: Map<string, any> = new Map();
-  constructor() {}
+  constructor() { }
 
-  public register(connector: ExchangeConnector) {
+  private register(connector: ExchangeConnector) {
     this.connectors.set(connector.getName(), connector);
     logger.info(`Registered connector ${connector.getName}`);
   }
@@ -20,7 +23,9 @@ export class ConnectorRegistry implements ConnectorRegistryPort {
   }
 
   public initialize() {
-    // logger.info('Initializing connectors');
-    // this.register(new BinanceConnector());
+    logger.info('Initializing connectors');
+    this.register(new BinanceConnector());
+    this.register(new KrakenConnector());
+    this.register(new HuobiConnector());
   }
 }
