@@ -46,7 +46,7 @@ export class HttpClient {
         logger.error(`Response data: ${JSON.stringify(error.response.data)}`);
       }
     } else {
-      //logger.error(`Unexpected error: ${error}`);
+      logger.error(`Unexpected error: ${error}`);
     }
     throw error;
   }
